@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Logger } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Logger, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,14 +6,17 @@ import { IResponse } from '@/interfaces/response.interface';
 import { RoleType } from './entities/role-type';
 import { LoginDto } from './dto/login.dto';
 import { LoginResponse } from '@/interfaces/user.interface';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 import { AuthGuard, Role, RolesGuard } from '../../security';
+import { IPaginated, IQuery } from '@/interfaces/paging.interface';
+import { UserQueryDto } from './dto/user-query.dto';
 
 @ApiBearerAuth()
 @Controller('user')
 export class UserController {
     constructor(private readonly userService: UserService) { }
+    query: IQuery<User>
     private readonly logger = new Logger(UserService.name, {
         timestamp: true,
     });
@@ -28,9 +31,13 @@ export class UserController {
         }
     }
     @UseGuards(AuthGuard, RolesGuard) // Bảo vệ bằng JWT
-    @Role([RoleType.USER])
+    @Role([RoleType.ADMIN])
     @Get()
-    async findAll() {
+    async findAll(@Query() query: UserQueryDto): Promise<IResponse<IPaginated<User>>> {
+        const data = await this.userService.findAll(query);
+        return {
+            data, message: "Get All user success"
+        };
     }
 
     @Get(':id')

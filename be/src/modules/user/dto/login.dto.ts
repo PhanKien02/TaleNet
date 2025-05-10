@@ -21,7 +21,7 @@ export class LoginDto {
     @IsNotEmpty()
     @ApiProperty({
         enum: RoleType,
-        default: RoleType.USER,
+        default: RoleType.ADMIN,
     })
     role: string;
 }

@@ -6,27 +6,20 @@ import { HydratedDocument } from 'mongoose';
 @Schema()
 export class User extends BaseEntity {
     @Prop({
-        isRequired: true,
-        index: 'text'
+        required: true,
     })
     email: string;
 
     @Prop()
     password: string;
 
-    @Prop({
-        index: 'text'
-    })
+    @Prop({ index: { type: 'text' } })
     fullName: string;
 
     @Prop()
     isActive: boolean;
 
-    @Prop({
-        length: 10,
-        isRequired: true,
-        index: 'text'
-    })
+    @Prop({ maxlength: 10 })
     phone: string;
 
     @Prop()
@@ -48,3 +41,6 @@ export class User extends BaseEntity {
 export type UserDocument = HydratedDocument<User>;
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+// ✅ Compound index nếu cần:
+UserSchema.index({ email: 'text', fullName: 'text', phone: 'text' }, { default_language: 'vi' });

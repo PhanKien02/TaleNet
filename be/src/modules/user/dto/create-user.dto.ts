@@ -1,7 +1,7 @@
 import { errorMessage } from '@/common/errorMessage';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsString, Length, Matches, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, Length, Matches } from 'class-validator';
 import { RoleType } from '../entities/role-type';
 
 

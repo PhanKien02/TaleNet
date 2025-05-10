@@ -8,10 +8,12 @@ import { compareSync, hashSync } from 'bcrypt';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { LoginResponse, PayLoadToken } from '@/interfaces/user.interface';
-import { IPaginated, IQuery } from '@/interfaces/paging.interface';
+import { IPaginated } from '@/interfaces/paging.interface';
 import { Model, ObjectId } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { paginateResponse } from '@/utils/build-result';
+import { UserQueryDto } from './dto/user-query.dto';
+import { getAllUser } from './pipeline';
+import { paginateResponse } from '@/utils/buildFilterSortAndPaginate';
 
 @Injectable()
 export class UserService {
@@ -41,13 +43,15 @@ export class UserService {
         });
         return newUser;
     }
-    async findAll(paginate: IQuery<User>): Promise<IPaginated<User>> {
-        const result = await this.userModel.find();
+    async findAll(query: UserQueryDto): Promise<IPaginated<User>> {
+        const pipeline = getAllUser(query);
+        const [result] = await this.userModel.aggregate(pipeline);
+
         return paginateResponse({
-            data: result,
-            limit: paginate.limit,
-            page: paginate.page,
-            totalResults: result.length
+            datas: result || [],
+            limit: query.limit,
+            page: query.page,
+            totalResults: result?.length || 0
         })
     }
     async findOneById(id: ObjectId): Promise<User> {
